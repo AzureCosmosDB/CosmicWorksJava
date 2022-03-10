@@ -1,14 +1,15 @@
 # Cosmic Works Java
-How to model and partition data for Cosmos DB starting with the Adventure Works database with all Samples in Java.
 
-This repo is used to support a presentation on how to migrate a relational database schema to a NoSQL database like Azure Cosmos DB.
-This repo contains a Powerpoint presentation and a Visual Studio solution that represents the demos for this presentation with three projects in it:
+How to migrate a relational data model to Azure Cosmos DB, a distributed, horizontally scalable, NoSQL database.
 
-* **modeling-demos**: This contains the main app that shows the evolution of the data models from v1 to v4
+This repo is used to support a presentation on how to migrate a relational database schema to a NoSQL database like Azure Cosmos DB. It is based on [CosmicWorks](https://github.com/AzureCosmosDB/CosmicWorks), but re-worked using the Java V4 SDK for Azure Cosmos DB.  
+This repo contains a Powerpoint presentation and Java resources at `/CosmicWorksJava/tree/master/src/main/java/com/azure/cosmos/examples` that represents the demos for this presentation with three folders:
 
-* **change-feed-categories**: This project uses change feed processor to monitor the product categories container for changes and then propagates those to the products container.
+* **modeling**: This contains the main app that shows the evolution of the data models from v1 to v4
 
-* **models**: This project contains all of the POCO classes used in both projects.
+* **changefeed**: This contains an app `ProductCategoryChangeFeedProcessor` which uses change feed processor to monitor the product categories container for changes and then propagates those to the products container.
+
+* **models**: This contains all of the POJO classes used in the above two apps.
 
 ## Steps to setup
 
@@ -17,12 +18,26 @@ This repo contains a Powerpoint presentation and a Visual Studio solution that r
 1. Clone this repository to your local machine.
 1. Click the Deploy to Azure button above. This will provision a new Cosmos DB account in a single region.
 1. When the deployment is complete, click on the Outputs tab in the custom deployment blade. Copy the `uri` and `key` values and save locally.
-1. Open the Cosmic Works solution file.
-1. Add the `uri` and `key` information to the appSettings.json file for both the 'change-feed-categories' and 'modeling-demos' VS Project files or right click each project, select 'Manage User Secrets' and enter the same key and values as key-value pairs there.
-1. Right click the 'modeling-demos' project and set as start up. Then press F5 to start it.
+1. Environment variables must be set with these values:
+
+```
+ACCOUNT_HOST=your account uri;ACCOUNT_KEY=your account primary key
+```
+
+1. To run a sample, specify its Main Class 
+
+```
+com.azure.cosmos.examples.modeling.sync.ModelingDemo
+```
+
 1. On the main menu, press 'k' to create the database and container resources (Note, these are billable resources).
 1. On the main menu, press 'l' to load data. (Note, this can take quite some time and may time out when run locally over low bandwidth connections. Best performance is running on a VM in the same region the Cosmos account was provisioned in.)
-1. Right click the 'change-feed-categories' project and select, Debug, Start new instance.
+1. Run the `ProductCategoryChangeFeedProcessor.java` app in a separate JVM, specifying it's Main Class:
+
+```
+com.azure.cosmos.examples.changefeed.ProductCategoryChangeFeedProcessor
+```
+
 1. Finally, put breakpoints for any of the functions you want to run then press the corresponding menu item key to execute.
 
 > [!IMPORTANT]
