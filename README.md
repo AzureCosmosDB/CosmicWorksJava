@@ -2,7 +2,7 @@
 
 How to migrate a relational data model to Azure Cosmos DB, a distributed, horizontally scalable, NoSQL database.
 
-This repo is used to support a presentation on how to migrate a relational database schema to a NoSQL database like Azure Cosmos DB. It is based on [CosmicWorks](https://github.com/AzureCosmosDB/CosmicWorks), but re-worked using the Java V4 SDK for Azure Cosmos DB.  
+This repo is used to support a presentation on how to migrate a relational database schema to a NoSQL database like Azure Cosmos DB. It is based on [CosmicWorks](https://github.com/AzureCosmosDB/CosmicWorks), but re-worked using the [Java V4 SDK](https://docs.microsoft.com/azure/cosmos-db/sql/sql-api-sdk-java-v4) for Azure Cosmos DB.  
 This repo contains a Powerpoint presentation and Java resources at `/CosmicWorksJava/tree/master/src/main/java/com/azure/cosmos/examples` that represents the demos for this presentation with three folders:
 
 * **modeling**: This contains the main app that shows the evolution of the data models from v1 to v4
