@@ -171,9 +171,11 @@ public class ModelingDemos {
                     final long startTime = System.currentTimeMillis();
                     new Deployment().LoadDatabase(p.client, false, 1);
                     final long endTime = System.currentTimeMillis();
-                    final long duration = (endTime - startTime);
-                    long seconds = TimeUnit.MILLISECONDS.toSeconds(duration);
-                    System.out.println("Upload took "+seconds+" seconds");
+                    final long durationMillis = (endTime - startTime);
+                    String duration = millisecondsToTime(durationMillis);
+                    clearScreen();
+                    System.out.println("Finished loading all data!!");
+                    System.out.println("Upload took: "+duration);
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }  
                 if (input.equals("m")) {
@@ -590,6 +592,19 @@ public class ModelingDemos {
                 }
             }
         });
+    }
+
+    private static String millisecondsToTime(long milliseconds) {
+        long minutes = (milliseconds / 1000) / 60;
+        long seconds = (milliseconds / 1000) % 60;
+        String secondsStr = Long.toString(seconds);
+        String secs;
+        if (secondsStr.length() >= 2) {
+            secs = secondsStr.substring(0, 2);
+        } else {
+            secs = "0" + secondsStr;
+        }
+        return minutes + " minutes, " + secs + " seconds.";
     }
 
     private void pressAnyKeyToContinue(String message) {
