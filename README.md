@@ -13,7 +13,7 @@ This repo contains a Powerpoint presentation and Java resources at `/CosmicWorks
 
 ## Steps to setup
 
-[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazurecosmosdb%2Fcosmicworks%2Fmaster%2Fazuredeploy.json)
+[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazurecosmosdb%2Fcosmicworksjava%2Fmain%2Fazuredeploy.json)
 
 1. Clone this repository to your local machine.
 1. Click the Deploy to Azure button above. This will provision a new Cosmos DB account in a single region.
@@ -48,12 +48,12 @@ com.azure.cosmos.examples.changefeed.ProductCategoryChangeFeedProcessor
 You can download all of the data for each of the 4 versions of the Cosmos DB databases as it progresses through its evolution from the data folder in this repository.
 You can see the contents of these storage containers below.
 
-* [Cosmic Works version 1](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v1)
+* [Cosmic Works version 1](https://github.com/AzureCosmosDB/CosmicWorksJava/tree/main/src/main/java/com/azure/cosmos/examples/data/cosmic-works-v1)
 
-* [Cosmic Works version 2](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v2)
+* [Cosmic Works version 2](https://github.com/AzureCosmosDB/CosmicWorksJava/tree/main/src/main/java/com/azure/cosmos/examples/data/cosmic-works-v2)
 
-* [Cosmic Works version 3](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v3)
+* [Cosmic Works version 3](https://github.com/AzureCosmosDB/CosmicWorksJava/tree/main/src/main/java/com/azure/cosmos/examples/data/cosmic-works-v3)
 
-* [Cosmic Works version 4](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v4)
+* [Cosmic Works version 4](https://github.com/AzureCosmosDB/CosmicWorksJava/tree/main/src/main/java/com/azure/cosmos/examples/data/cosmic-works-v4)
 
-You can also [download a bak file](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
+You can also [download a bak file](https://github.com/AzureCosmosDB/CosmicWorksJava/tree/main/src/main/java/com/azure/cosmos/examples/data/adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
