@@ -15,7 +15,6 @@ import com.azure.cosmos.examples.models.Models.Product;
 import com.azure.cosmos.examples.models.Models.ProductCategory;
 import com.azure.cosmos.implementation.Utils;
 import com.azure.cosmos.models.CosmosBulkOperations;
-import com.azure.cosmos.models.CosmosDatabaseResponse;
 import com.azure.cosmos.models.CosmosItemOperation;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.PartitionKey;
@@ -35,12 +34,8 @@ import java.util.List;
  */
 public class ProductCategoryChangeFeedProcessor {
 
-    public static int WAIT_FOR_WORK = 60000;
-    public static final String DATABASE_NAME = "database-v3";
-    public static final String COLLECTION_NAME = "productCategory";
     private static final ObjectMapper OBJECT_MAPPER = Utils.getSimpleObjectMapper();
     protected static Logger logger = LoggerFactory.getLogger(ProductCategoryChangeFeedProcessor.class);
-    private static ChangeFeedProcessor changeFeedProcessorInstance;
     static CosmosAsyncContainer productContainer;
 
     public static void main(String[] args) {
@@ -56,14 +51,15 @@ public class ProductCategoryChangeFeedProcessor {
             CosmosAsyncContainer leaseContainer = database.getContainer("leases");
             clearScreen();
             logger.info("-->START Change Feed Processor on worker (handles changes asynchronously)");
-            changeFeedProcessorInstance = getChangeFeedProcessor("Java_CosmicWorks_Host_1", productCategoryContainer,
-                    leaseContainer);
+            ChangeFeedProcessor changeFeedProcessorInstance = getChangeFeedProcessor("Java_CosmicWorks_Host_1",
+                productCategoryContainer,
+                leaseContainer);
             changeFeedProcessorInstance.start()
-                    .subscribeOn(Schedulers.elastic())
-                    .doOnSuccess(aVoid -> {
+                                       .subscribeOn(Schedulers.boundedElastic())
+                                       .doOnSuccess(aVoid -> {
                         // pass
                     })
-                    .subscribe();
+                                       .subscribe();
             Thread.sleep(50);
 
         } catch (Exception e) {
@@ -116,11 +112,6 @@ public class ProductCategoryChangeFeedProcessor {
                 .buildAsyncClient();
     }
 
-    public static CosmosAsyncDatabase createNewDatabase(CosmosAsyncClient client, String databaseName) {
-        CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName).block();
-        return client.getDatabase(databaseResponse.getProperties().getId());
-    }
-
     public static void bulkReplaceItems(Flux<Product> products) {
         Flux<CosmosItemOperation> cosmosItemOperations = products
                 .map(product -> CosmosBulkOperations.getReplaceItemOperation(product.getId(), product,
@@ -136,16 +127,16 @@ public class ProductCategoryChangeFeedProcessor {
                 "SELECT * FROM c WHERE c.categoryId = '" + categoryId + "'", queryOptions, Product.class);
 
         try {
-            List<Product> productList = new ArrayList<Product>();
+            List<Product> productList = new ArrayList<>();
             productByCategoryPagedFluxResponse.byPage(preferredPageSize).flatMap(fluxResponse -> {
 
                 for (Product doc : fluxResponse.getResults()) {
                     doc.setCategoryName(categoryName);
-                    ObjectMapper jsondoc = new ObjectMapper();
                     try {
                         productList.add(doc);
+                        //noinspection BlockingMethodInNonBlockingContext
                         System.out.println("Product doc that will be updated: "
-                                + jsondoc.writerWithDefaultPrettyPrinter().writeValueAsString(doc));
+                                + OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(doc));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
@@ -158,9 +149,9 @@ public class ProductCategoryChangeFeedProcessor {
         } catch (Exception err) {
             if (err instanceof CosmosException) {
                 // Client-specific errors
-                CosmosException cerr = (CosmosException) err;
-                cerr.printStackTrace();
-                logger.error(String.format("Read Item failed with %s\n", cerr));
+                CosmosException cosmosErr = (CosmosException) err;
+                cosmosErr.printStackTrace();
+                logger.error(String.format("Read Item failed with %s\n", cosmosErr));
             } else {
                 // General errors
                 err.printStackTrace();

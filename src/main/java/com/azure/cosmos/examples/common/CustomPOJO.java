@@ -7,27 +7,24 @@ public class CustomPOJO {
     private String id;
     private String pk;
     private String type;
-    private String ProductCount;
-    private String categoryName;;
-
-    public CustomPOJO() {
-
-    }
+    private String productCount;
+    private String categoryName;
 
     public String getType() {
         return type;
     }
-    public String getProductCount() {
-        return ProductCount;
-    }
+
+    public void setType(String type) { this.type = type; }
+
+    public String getProductCount() { return productCount; }
+
+    public void setProductCount(String productCount) { this.productCount = productCount; }
 
     public String getCategoryName() {
         return categoryName;
     }
 
-    public CustomPOJO(String id) {
-        this.id = id;
-    }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
     public String getId() {
         return id;

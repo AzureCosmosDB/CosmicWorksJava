@@ -39,12 +39,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class ModelingDemos {
+public class ModelingDemos implements AutoCloseable {
 
-    private CosmosClient client;
+    private final CosmosClient client;
     private CosmosDatabase database;
     private CosmosContainer container;
     private static final ObjectMapper OBJECT_MAPPER = Utils.getSimpleObjectMapper();
@@ -62,18 +61,15 @@ public class ModelingDemos {
 
     /**
      * Run CosmicWorksJava demo app
-     * 
-     * @throws Exception*
      */
     // <Main>
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         ModelingDemos p = new ModelingDemos();
-        Scanner in = new Scanner(System.in);
 
-        try {
+        try (Scanner in = new Scanner(System.in)) {
 
             boolean exit = false;
-            while (exit == false) {
+            while (!exit) {
                 Thread.sleep(1000);
                 clearScreen();
                 System.out.println("Cosmos DB Modeling and Partitioning Demos");
@@ -162,32 +158,30 @@ public class ModelingDemos {
                 if (input.equals("k")) {
                     clearScreen();
                     System.out.println("Create databases and containers");
-                    new Deployment().CreateDatabase(p.client, false, 1);
+                    new Deployment().CreateDatabase(p.client, 1);
                     p.pressAnyKeyToContinue("Press any key to continue...");
-                } 
+                }
                 if (input.equals("l")) {
                     clearScreen();
                     System.out.println("Upload data to containers");
                     final long startTime = System.currentTimeMillis();
-                    new Deployment().LoadDatabase(p.client, false, 1);
+                    new Deployment().LoadDatabase();
                     final long endTime = System.currentTimeMillis();
                     final long durationMillis = (endTime - startTime);
                     String duration = millisecondsToTime(durationMillis);
                     clearScreen();
                     System.out.println("Finished loading all data!!");
-                    System.out.println("Upload took: "+duration);
+                    System.out.println("Upload took: " + duration);
                     p.pressAnyKeyToContinue("Press any key to continue...");
-                }  
+                }
                 if (input.equals("m")) {
                     clearScreen();
                     System.out.println("Delete databases and containers");
-                    new Deployment().DeleteDatabases(p.client, false, 1);
-                    
-                }                                                                              
+                    new Deployment().DeleteDatabases(p.client, 1);
+
+                }
                 if (input.equals("x")) {
                     exit = true;
-                }
-                else{                    
                 }
             }
 
@@ -196,13 +190,12 @@ public class ModelingDemos {
             logger.error(String.format("Cosmos getStarted failed with %s", e));
         } finally {
             logger.info("Closing the client");
-            in.close();
             p.shutdown();
         }
     }
 
     ModelingDemos() {
-        ArrayList<String> preferredRegions = new ArrayList<String>();
+        ArrayList<String> preferredRegions = new ArrayList<>();
         preferredRegions.add("West US");
         client = new CosmosClientBuilder()
                 .endpoint(AccountSettings.HOST)
@@ -214,7 +207,7 @@ public class ModelingDemos {
     }
     // </Main>
 
-    public void QueryCustomer() throws Exception {
+    public void QueryCustomer() {
         database = client.getDatabase("database-v2");
         container = database.getContainer("customer");
         int preferredPageSize = 10;
@@ -258,7 +251,7 @@ public class ModelingDemos {
 
     }
 
-    public void ListAllProductCategories() throws Exception {
+    public void ListAllProductCategories() {
         database = client.getDatabase("database-v2");
         container = database.getContainer("productCategory");
         int preferredPageSize = 100;
@@ -281,7 +274,7 @@ public class ModelingDemos {
         });
     }
 
-    public void QueryProductsByCategoryId() throws Exception {
+    public void QueryProductsByCategoryId() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("product");
         int preferredPageSize = 100;
@@ -311,7 +304,7 @@ public class ModelingDemos {
 
     }
 
-    public void QueryProductsForCategory() throws Exception {
+    public void QueryProductsForCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("product");
         int preferredPageSize = 100;
@@ -341,7 +334,7 @@ public class ModelingDemos {
 
     }
 
-    private void UpdateProductCategory() throws Exception {
+    private void UpdateProductCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("productCategory");
 
@@ -362,7 +355,7 @@ public class ModelingDemos {
         logger.info("Done.");
     }
 
-    private void RevertProductCategory() throws Exception {
+    private void RevertProductCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("productCategory");
 
@@ -433,7 +426,7 @@ public class ModelingDemos {
                     cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                     + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
 
-            List<SalesOrder> orders = new ArrayList<SalesOrder>();
+            List<SalesOrder> orders = new ArrayList<>();
             CustomerV4 customer = new CustomerV4();
             for (JsonNode record : cosmosItemPropertiesFeedResponse.getResults()) {
                 try {
@@ -443,9 +436,7 @@ public class ModelingDemos {
                     if (record.get("type").asText().equals("salesOrder")) {
                         orders.add(OBJECT_MAPPER.treeToValue(record, SalesOrder.class));
                     }
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                } catch (IllegalArgumentException e) {
+                } catch (JsonProcessingException | IllegalArgumentException e) {
                     e.printStackTrace();
                 }
             }
@@ -490,7 +481,7 @@ public class ModelingDemos {
         System.out.println("After formatting: " + formattedDate);
         salesOrder.setOrderDate(formattedDate);
         salesOrder.setShipDate("");
-        List<SalesOrderDetails> salesorders = new ArrayList<SalesOrderDetails>();
+        List<SalesOrderDetails> salesOrders = new ArrayList<>();
         SalesOrderDetails order1 = new SalesOrderDetails();
         {
             order1.setSku("FR-M94B-38");
@@ -505,9 +496,9 @@ public class ModelingDemos {
             order1.setPrice(8.99);
             order1.setQuantity(2);
         }
-        salesorders.add(order1);
-        salesorders.add(order2);
-        salesOrder.setDetails(salesorders);
+        salesOrders.add(order1);
+        salesOrders.add(order2);
+        salesOrder.setDetails(salesOrders);
 
         ObjectMapper doc = new ObjectMapper();
         try {
@@ -610,8 +601,10 @@ public class ModelingDemos {
     private void pressAnyKeyToContinue(String message) {
         System.out.println(message);
         try {
+            //noinspection ResultOfMethodCallIgnored
             System.in.read();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
