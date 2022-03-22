@@ -36,10 +36,10 @@ import reactor.core.publisher.Flux;
 
 public class Deployment {
 
-    public void CreateDatabase(CosmosClient cosmosDBClient, boolean force, int schemaVersion) {
+    public void CreateDatabase(CosmosClient cosmosDBClient, int schemaVersion) {
         {
-            int schemaVersionStart = 1;
-            int schemaVersionEnd = 4;
+            int schemaVersionStart;
+            int schemaVersionEnd;
             if (schemaVersion == 0) {
                 schemaVersionStart = schemaVersion;
                 schemaVersionEnd = schemaVersion;
@@ -57,9 +57,9 @@ public class Deployment {
 
     public List<List<SchemaDetails>> getSchemaDetails() {
 
-        List<List<SchemaDetails>> DatabaseSchema = new ArrayList<List<SchemaDetails>>();
+        List<List<SchemaDetails>> DatabaseSchema = new ArrayList<>();
 
-        List<SchemaDetails> DatabaseSchema_1 = new ArrayList<SchemaDetails>();
+        List<SchemaDetails> DatabaseSchema_1 = new ArrayList<>();
         DatabaseSchema_1.add(new SchemaDetails("customer", "/id"));
         DatabaseSchema_1.add(new SchemaDetails("customerAddress", "/id"));
         DatabaseSchema_1.add(new SchemaDetails("customerPassword", "/id"));
@@ -70,14 +70,14 @@ public class Deployment {
         DatabaseSchema_1.add(new SchemaDetails("salesOrder", "/id"));
         DatabaseSchema_1.add(new SchemaDetails("salesOrderDetail", "/id"));
 
-        List<SchemaDetails> DatabaseSchema_2 = new ArrayList<SchemaDetails>();
+        List<SchemaDetails> DatabaseSchema_2 = new ArrayList<>();
         DatabaseSchema_2.add(new SchemaDetails("customer", "/id"));
         DatabaseSchema_2.add(new SchemaDetails("product", "/categoryId"));
         DatabaseSchema_2.add(new SchemaDetails("productCategory", "/type"));
         DatabaseSchema_2.add(new SchemaDetails("productTag", "/type"));
         DatabaseSchema_2.add(new SchemaDetails("salesOrder", "/customerId"));
 
-        List<SchemaDetails> DatabaseSchema_3 = new ArrayList<SchemaDetails>();
+        List<SchemaDetails> DatabaseSchema_3 = new ArrayList<>();
         DatabaseSchema_3.add(new SchemaDetails("leases", "/id"));
         DatabaseSchema_3.add(new SchemaDetails("customer", "/id"));
         DatabaseSchema_3.add(new SchemaDetails("product", "/categoryId"));
@@ -85,7 +85,7 @@ public class Deployment {
         DatabaseSchema_3.add(new SchemaDetails("productTag", "/type"));
         DatabaseSchema_3.add(new SchemaDetails("salesOrder", "/customerId"));
 
-        List<SchemaDetails> DatabaseSchema_4 = new ArrayList<SchemaDetails>();
+        List<SchemaDetails> DatabaseSchema_4 = new ArrayList<>();
         DatabaseSchema_4.add(new SchemaDetails("customer", "/customerId"));
         DatabaseSchema_4.add(new SchemaDetails("product", "/categoryId"));
         DatabaseSchema_4.add(new SchemaDetails("productMeta", "/type"));
@@ -112,9 +112,9 @@ public class Deployment {
                     throughputProperties);
             CosmosDatabase cosmosDatabase = cosmosDBClient.getDatabase(cosmosDatabaseResponse.getProperties().getId());
             for (SchemaDetails schemaDetails : DatabaseSchema.get(schema - 1)) {
-                CosmosContainerProperties autoscaleContainerProperties = new CosmosContainerProperties(
+                CosmosContainerProperties autoScaleContainerProperties = new CosmosContainerProperties(
                         schemaDetails.getContainerName(), schemaDetails.getPk());
-                CosmosContainerResponse databaseResponse = cosmosDatabase.createContainer(autoscaleContainerProperties,
+                CosmosContainerResponse databaseResponse = cosmosDatabase.createContainer(autoScaleContainerProperties,
                         throughputProperties,
                         new CosmosContainerRequestOptions());
                 CosmosContainer container = cosmosDatabase.getContainer(databaseResponse.getProperties().getId());
@@ -123,10 +123,10 @@ public class Deployment {
         }
     }
 
-    public void DeleteDatabases(CosmosClient cosmosDBClient, boolean force, int schemaVersion) {
+    public void DeleteDatabases(CosmosClient cosmosDBClient, int schemaVersion) {
         {
-            int schemaVersionStart = 1;
-            int schemaVersionEnd = 4;
+            int schemaVersionStart;
+            int schemaVersionEnd;
             if (schemaVersion == 0) {
                 schemaVersionStart = schemaVersion;
                 schemaVersionEnd = schemaVersion;
@@ -148,7 +148,6 @@ public class Deployment {
                 else {
                     System.out.println("Ok, delete aborted");
                 }                       
-            }finally{               
             }
 
         }
@@ -159,15 +158,13 @@ public class Deployment {
         cosmosDBClient.getDatabase(database).delete(new CosmosDatabaseRequestOptions());
     }    
 
-    public void LoadDatabase(CosmosClient cosmosDBClient, Boolean force, int schemaVersion) {
+    public void LoadDatabase() {
         {
             final ExecutorService es = Executors.newCachedThreadPool();
             int[] schemaVersions = {1,2,3,4};
             for (int v : schemaVersions) {
-                final Runnable task = () -> {
-                    LoadContainersFromFolder(cosmosDBClient, v, "cosmic-works-v" + v,
-                            "database-v" + v);
-                };
+                final Runnable task = () -> LoadContainersFromFolder(v, "cosmic-works-v" + v,
+                        "database-v" + v);
                 es.execute(task);
             }
             es.shutdown();
@@ -193,8 +190,8 @@ public class Deployment {
                 .buildAsyncClient();
     }
 
-    public void LoadContainersFromFolder(CosmosClient client, int schemaVersion, String SourceDatabaseName,
-            String TargetDatabaseName) {
+    public void LoadContainersFromFolder(int schemaVersion, String SourceDatabaseName,
+                                         String TargetDatabaseName) {
         List<List<SchemaDetails>> DatabaseSchema = getSchemaDetails();    
         CosmosAsyncClient clientAsync = getCosmosClient();
         CosmosAsyncDatabase database = clientAsync.getDatabase(TargetDatabaseName);
@@ -207,7 +204,8 @@ public class Deployment {
         File path = new java.io.File(folder);
         File[] listOfFiles = path.listFiles();
         final ExecutorService es = Executors.newCachedThreadPool();
-        
+
+        assert listOfFiles != null;
         for (File file : listOfFiles) {
             final Runnable task = () -> {
                 System.out.println("new container thread...");
@@ -232,7 +230,7 @@ public class Deployment {
                         sc.useDelimiter("\\Z");
                         String JsonArrayString = sc.next();
                         JSONArray jsonArray = new JSONArray(JsonArrayString);
-                        List<JsonNode> docList = new ArrayList<JsonNode>();
+                        List<JsonNode> docList = new ArrayList<>();
                         for (Object doc : jsonArray) {
                             ObjectMapper mapper = new ObjectMapper();
                             JsonNode actualObj = mapper.readTree(doc.toString());
@@ -299,6 +297,6 @@ public class Deployment {
 
         public String ContainerName;
         public String Pk;
-    };
+    }
 
 }
