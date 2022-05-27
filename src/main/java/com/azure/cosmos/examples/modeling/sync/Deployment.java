@@ -1,4 +1,4 @@
-package com.azure.cosmos.examples.modeling;
+package com.azure.cosmos.examples.modeling.sync;
 
 import java.io.File;
 import java.io.IOException;
