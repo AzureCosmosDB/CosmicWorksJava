@@ -92,79 +92,79 @@ public class ModelingDemos implements AutoCloseable {
                 if (input.equals("a")) {
                     clearScreen();
                     System.out.println("Calling query for single customer");
-                    p.QueryCustomer();
+                    p.queryCustomer();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("b")) {
                     clearScreen();
                     System.out.println("Point read for single customer");
-                    p.GetCustomer();
+                    p.getCustomer();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("c")) {
                     clearScreen();
                     System.out.println("List all product categories");
-                    p.ListAllProductCategories();
+                    p.listAllProductCategories();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("d")) {
                     clearScreen();
                     System.out.println("Query products by category id");
-                    p.QueryProductsByCategoryId();
+                    p.queryProductsByCategoryId();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("e")) {
                     clearScreen();
                     System.out.println("Update product category name");
-                    p.QueryProductsForCategory();
-                    p.UpdateProductCategory();
+                    p.queryProductsForCategory();
+                    p.updateProductCategory();
                     p.pressAnyKeyToContinue("Category updated.\nPress any key to continue...");
-                    p.QueryProductsForCategory();
+                    p.queryProductsForCategory();
                     p.pressAnyKeyToContinue("Press any key to revert categories...");
-                    p.RevertProductCategory();
+                    p.revertProductCategory();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("f")) {
                     clearScreen();
                     System.out.println("Query orders by customer id");
-                    p.QuerySalesOrdersByCustomerId();
+                    p.querySalesOrdersByCustomerId();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("g")) {
                     clearScreen();
                     System.out.println("Query for customer and all orders");
-                    p.QueryCustomerAndSalesOrdersByCustomerId();
+                    p.queryCustomerAndSalesOrdersByCustomerId();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("h")) {
                     clearScreen();
                     System.out.println("Create new order and update order total");
-                    p.CreateNewOrderAndUpdateCustomerOrderTotal();
+                    p.createNewOrderAndUpdateCustomerOrderTotal();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("i")) {
                     clearScreen();
                     System.out.println("Delete order and update order total");
-                    p.DeleteOrder();
+                    p.deleteOrder();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("j")) {
                     clearScreen();
                     System.out.println("Query top 10 customers");
-                    p.GetTop10Customers();
+                    p.getTop10Customers();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("k")) {
                     clearScreen();
                     System.out.println("Create databases and containers");
-                    new Deployment().CreateDatabase(p.client, 1);
+                    new Deployment().createDatabase(p.client, 1);
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("l")) {
                     clearScreen();
                     System.out.println("Upload data to containers");
                     final long startTime = System.currentTimeMillis();
-                    new Deployment().LoadDatabase();
+                    new Deployment().loadDatabase();
                     final long endTime = System.currentTimeMillis();
                     final long durationMillis = (endTime - startTime);
                     String duration = millisecondsToTime(durationMillis);
@@ -176,7 +176,7 @@ public class ModelingDemos implements AutoCloseable {
                 if (input.equals("m")) {
                     clearScreen();
                     System.out.println("Delete databases and containers");
-                    new Deployment().DeleteDatabases(p.client, 1);
+                    new Deployment().deleteDatabases(p.client, 1);
 
                 }
                 if (input.equals("x")) {
@@ -206,7 +206,7 @@ public class ModelingDemos implements AutoCloseable {
     }
     // </Main>
 
-    public void QueryCustomer() {
+    public void queryCustomer() {
         database = client.getDatabase("database-v2");
         container = database.getContainer("customer");
         int preferredPageSize = 10;
@@ -231,7 +231,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    public void GetCustomer() {
+    public void getCustomer() {
         try {
             database = client.getDatabase("database-v2");
             container = database.getContainer("customer");
@@ -250,7 +250,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    public void ListAllProductCategories() {
+    public void listAllProductCategories() {
         database = client.getDatabase("database-v2");
         container = database.getContainer("productCategory");
         int preferredPageSize = 100;
@@ -273,7 +273,7 @@ public class ModelingDemos implements AutoCloseable {
         });
     }
 
-    public void QueryProductsByCategoryId() {
+    public void queryProductsByCategoryId() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("product");
         int preferredPageSize = 100;
@@ -303,7 +303,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    public void QueryProductsForCategory() {
+    public void queryProductsForCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("product");
         int preferredPageSize = 100;
@@ -333,7 +333,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    private void UpdateProductCategory() {
+    private void updateProductCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("productCategory");
 
@@ -354,7 +354,7 @@ public class ModelingDemos implements AutoCloseable {
         logger.info("Done.");
     }
 
-    private void RevertProductCategory() {
+    private void revertProductCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("productCategory");
 
@@ -375,7 +375,7 @@ public class ModelingDemos implements AutoCloseable {
         logger.info("Done.");
     }
 
-    private void QuerySalesOrdersByCustomerId() {
+    private void querySalesOrdersByCustomerId() {
         int preferredPageSize = 100;
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         queryOptions.setQueryMetricsEnabled(true);
@@ -407,7 +407,7 @@ public class ModelingDemos implements AutoCloseable {
         });
     }
 
-    private void QueryCustomerAndSalesOrdersByCustomerId() {
+    private void queryCustomerAndSalesOrdersByCustomerId() {
         int preferredPageSize = 100;
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         queryOptions.setQueryMetricsEnabled(true);
@@ -453,7 +453,7 @@ public class ModelingDemos implements AutoCloseable {
         });
     }
 
-    private void CreateNewOrderAndUpdateCustomerOrderTotal() {
+    private void createNewOrderAndUpdateCustomerOrderTotal() {
         database = client.getDatabase("database-v4");
         container = database.getContainer("customer");
 
@@ -527,7 +527,7 @@ public class ModelingDemos implements AutoCloseable {
         }
     }
 
-    private void DeleteOrder() {
+    private void deleteOrder() {
         database = client.getDatabase("database-v4");
         container = database.getContainer("customer");
 
@@ -556,7 +556,7 @@ public class ModelingDemos implements AutoCloseable {
         }
     }
 
-    private void GetTop10Customers() {
+    private void getTop10Customers() {
         int preferredPageSize = 100;
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         queryOptions.setQueryMetricsEnabled(true);
@@ -600,7 +600,7 @@ public class ModelingDemos implements AutoCloseable {
     private void pressAnyKeyToContinue(String message) {
         System.out.println(message);
         try {
-            //noinspection ResultOfMethodCallIgnored
+            // noinspection ResultOfMethodCallIgnored
             System.in.read();
         } catch (Exception e) {
             e.printStackTrace();

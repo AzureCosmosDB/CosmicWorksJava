@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.cosmos.examples.modeling.async;
 
 import java.io.File;
@@ -38,7 +41,7 @@ public class Deployment {
     private static Logger logger = LoggerFactory.getLogger(Deployment.class);
     private CosmosAsyncDatabase database;
 
-    public void CreateDatabase(CosmosAsyncClient cosmosDBClient, int schemaVersion) {
+    public void createDatabase(CosmosAsyncClient cosmosDBClient, int schemaVersion) {
         {
             int schemaVersionStart;
             int schemaVersionEnd;
@@ -51,61 +54,61 @@ public class Deployment {
             }
 
             for (int schemaVersionCounter = schemaVersionStart; schemaVersionCounter <= schemaVersionEnd; schemaVersionCounter++) {
-                System.out.println("create started for schema " + schemaVersionCounter);
-                CreateDatabaseAndContainers(cosmosDBClient, "database-v" + schemaVersionCounter, schemaVersionCounter);
+                logger.info("create started for schema " + schemaVersionCounter);
+                createDatabaseAndContainers(cosmosDBClient, "database-v" + schemaVersionCounter, schemaVersionCounter);
             }
         }
     }
 
     public List<List<SchemaDetails>> getSchemaDetails() {
 
-        List<List<SchemaDetails>> DatabaseSchema = new ArrayList<>();
+        List<List<SchemaDetails>> databaseSchema = new ArrayList<>();
 
-        List<SchemaDetails> DatabaseSchema_1 = new ArrayList<>();
-        DatabaseSchema_1.add(new SchemaDetails("customer", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("customerAddress", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("customerPassword", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("product", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("productCategory", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("productTag", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("productTags", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("salesOrder", "/id"));
-        DatabaseSchema_1.add(new SchemaDetails("salesOrderDetail", "/id"));
+        List<SchemaDetails> databaseSchema_1 = new ArrayList<>();
+        databaseSchema_1.add(new SchemaDetails("customer", "/id"));
+        databaseSchema_1.add(new SchemaDetails("customerAddress", "/id"));
+        databaseSchema_1.add(new SchemaDetails("customerPassword", "/id"));
+        databaseSchema_1.add(new SchemaDetails("product", "/id"));
+        databaseSchema_1.add(new SchemaDetails("productCategory", "/id"));
+        databaseSchema_1.add(new SchemaDetails("productTag", "/id"));
+        databaseSchema_1.add(new SchemaDetails("productTags", "/id"));
+        databaseSchema_1.add(new SchemaDetails("salesOrder", "/id"));
+        databaseSchema_1.add(new SchemaDetails("salesOrderDetail", "/id"));
 
-        List<SchemaDetails> DatabaseSchema_2 = new ArrayList<>();
-        DatabaseSchema_2.add(new SchemaDetails("customer", "/id"));
-        DatabaseSchema_2.add(new SchemaDetails("product", "/categoryId"));
-        DatabaseSchema_2.add(new SchemaDetails("productCategory", "/type"));
-        DatabaseSchema_2.add(new SchemaDetails("productTag", "/type"));
-        DatabaseSchema_2.add(new SchemaDetails("salesOrder", "/customerId"));
+        List<SchemaDetails> databaseSchema_2 = new ArrayList<>();
+        databaseSchema_2.add(new SchemaDetails("customer", "/id"));
+        databaseSchema_2.add(new SchemaDetails("product", "/categoryId"));
+        databaseSchema_2.add(new SchemaDetails("productCategory", "/type"));
+        databaseSchema_2.add(new SchemaDetails("productTag", "/type"));
+        databaseSchema_2.add(new SchemaDetails("salesOrder", "/customerId"));
 
-        List<SchemaDetails> DatabaseSchema_3 = new ArrayList<>();
-        DatabaseSchema_3.add(new SchemaDetails("leases", "/id"));
-        DatabaseSchema_3.add(new SchemaDetails("customer", "/id"));
-        DatabaseSchema_3.add(new SchemaDetails("product", "/categoryId"));
-        DatabaseSchema_3.add(new SchemaDetails("productCategory", "/type"));
-        DatabaseSchema_3.add(new SchemaDetails("productTag", "/type"));
-        DatabaseSchema_3.add(new SchemaDetails("salesOrder", "/customerId"));
+        List<SchemaDetails> databaseSchema_3 = new ArrayList<>();
+        databaseSchema_3.add(new SchemaDetails("leases", "/id"));
+        databaseSchema_3.add(new SchemaDetails("customer", "/id"));
+        databaseSchema_3.add(new SchemaDetails("product", "/categoryId"));
+        databaseSchema_3.add(new SchemaDetails("productCategory", "/type"));
+        databaseSchema_3.add(new SchemaDetails("productTag", "/type"));
+        databaseSchema_3.add(new SchemaDetails("salesOrder", "/customerId"));
 
-        List<SchemaDetails> DatabaseSchema_4 = new ArrayList<>();
-        DatabaseSchema_4.add(new SchemaDetails("customer", "/customerId"));
-        DatabaseSchema_4.add(new SchemaDetails("product", "/categoryId"));
-        DatabaseSchema_4.add(new SchemaDetails("productMeta", "/type"));
-        DatabaseSchema_4.add(new SchemaDetails("salesByCategory", "/categoryId"));
+        List<SchemaDetails> databaseSchema_4 = new ArrayList<>();
+        databaseSchema_4.add(new SchemaDetails("customer", "/customerId"));
+        databaseSchema_4.add(new SchemaDetails("product", "/categoryId"));
+        databaseSchema_4.add(new SchemaDetails("productMeta", "/type"));
+        databaseSchema_4.add(new SchemaDetails("salesByCategory", "/categoryId"));
 
-        DatabaseSchema.add(DatabaseSchema_1);
-        DatabaseSchema.add(DatabaseSchema_2);
-        DatabaseSchema.add(DatabaseSchema_3);
-        DatabaseSchema.add(DatabaseSchema_4);
+        databaseSchema.add(databaseSchema_1);
+        databaseSchema.add(databaseSchema_2);
+        databaseSchema.add(databaseSchema_3);
+        databaseSchema.add(databaseSchema_4);
 
-        return DatabaseSchema;
+        return databaseSchema;
 
     }
 
-    public void CreateDatabaseAndContainers(CosmosAsyncClient cosmosDBClient, String databaseName, int schema) {
+    public void createDatabaseAndContainers(CosmosAsyncClient cosmosDBClient, String databaseName, int schema) {
 
-        System.out.println("creating database and containers for schema v" + schema);
-        System.out.println("DatabaseName:" + database + " key:provided");
+        logger.info("creating database and containers for schema v" + schema);
+        logger.info("DatabaseName:" + database + " key:provided");
 
         List<List<SchemaDetails>> DatabaseSchema = getSchemaDetails();
         if (schema >= 1 & schema <= 4) {
@@ -117,7 +120,7 @@ public class Deployment {
                 logger.info("Checking database " + database.getId() + " completed!\n");
                 return Mono.empty();
             }).block();
-            
+
             for (SchemaDetails schemaDetails : DatabaseSchema.get(schema - 1)) {
                 CosmosContainerProperties autoScaleContainerProperties = new CosmosContainerProperties(
                         schemaDetails.getContainerName(), schemaDetails.getPk());
@@ -126,12 +129,12 @@ public class Deployment {
                 //  Create autoscale container with 4000 RU/s
                 CosmosContainerResponse cosmosContainerResponse = containerIfNotExists.block();
                 CosmosAsyncContainer container = database.getContainer(cosmosContainerResponse.getProperties().getId());
-                System.out.println("container: " + cosmosContainerResponse.getProperties().getId() + "." + container.getId() + " created!");
+                logger.info("container: " + cosmosContainerResponse.getProperties().getId() + "." + container.getId() + " created!");
             }
         }
     }
 
-    public void DeleteDatabases(CosmosAsyncClient cosmosDBClient, int schemaVersion) {
+    public void deleteDatabases(CosmosAsyncClient cosmosDBClient, int schemaVersion) {
         {
             int schemaVersionStart;
             int schemaVersionEnd;
@@ -143,35 +146,35 @@ public class Deployment {
                 schemaVersionEnd = 4;
             }
             try (Scanner in = new Scanner(System.in)) {
-                System.out.println("Are you sure you want to delete all the databases? y/n");
+                logger.info("Are you sure you want to delete all the databases? y/n");
                 String input = in.nextLine();
                 if (input.equals("y")) {
                     for (int schemaVersionCounter = schemaVersionStart; schemaVersionCounter <= schemaVersionEnd; schemaVersionCounter++) {
-                        System.out.println("delete started for schema " + schemaVersionCounter);
-                        DeleteDatabasesAndContainers(cosmosDBClient, "database-v" + schemaVersionCounter, schemaVersionCounter);
+                        logger.info("delete started for schema " + schemaVersionCounter);
+                        deleteDatabasesAndContainers(cosmosDBClient, "database-v" + schemaVersionCounter, schemaVersionCounter);
                     }
-                    System.out.println("Databases deleted, exiting program.");
+                    logger.info("Databases deleted, exiting program.");
                     System.exit(0);
                 }
                 else {
-                    System.out.println("Ok, delete aborted");
-                }                       
+                    logger.info("Ok, delete aborted");
+                }
             }
 
         }
     }
-    public void DeleteDatabasesAndContainers(CosmosAsyncClient cosmosDBClient, String database, int schema) {
-        System.out.println("creating database and containers for schema v" + schema);
-        System.out.println("DatabaseName:" + database + " key:provided");
+    public void deleteDatabasesAndContainers(CosmosAsyncClient cosmosDBClient, String database, int schema) {
+        logger.info("creating database and containers for schema v" + schema);
+        logger.info("DatabaseName:" + database + " key:provided");
         cosmosDBClient.getDatabase(database).delete(new CosmosDatabaseRequestOptions()).block();
-    }    
+    }
 
-    public void LoadDatabase() {
+    public void loadDatabase() {
         {
             final ExecutorService es = Executors.newCachedThreadPool();
             int[] schemaVersions = {1,2,3,4};
             for (int v : schemaVersions) {
-                final Runnable task = () -> LoadContainersFromFolder(v, "cosmic-works-v" + v,
+                final Runnable task = () -> loadContainersFromFolder(v, "cosmic-works-v" + v,
                         "database-v" + v);
                 es.execute(task);
             }
@@ -180,10 +183,10 @@ public class Deployment {
             try {
                 final boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
                 if (finished) {
-                    System.out.println("finished loading all data!!");
+                    logger.info("finished loading all data!!");
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.info("Exception: " + e);
             }
         }
     }
@@ -198,17 +201,17 @@ public class Deployment {
                 .buildAsyncClient();
     }
 
-    public void LoadContainersFromFolder(int schemaVersion, String SourceDatabaseName,
-                                         String TargetDatabaseName) {
-        List<List<SchemaDetails>> DatabaseSchema = getSchemaDetails();    
+    public void loadContainersFromFolder(int schemaVersion, String sourceDatabaseName,
+                                         String targetDatabaseName) {
+        List<List<SchemaDetails>> DatabaseSchema = getSchemaDetails();
         CosmosAsyncClient clientAsync = getCosmosClient();
-        CosmosAsyncDatabase database = clientAsync.getDatabase(TargetDatabaseName);
+        CosmosAsyncDatabase database = clientAsync.getDatabase(targetDatabaseName);
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
-        String folder = s + "/src/main/java/com/azure/cosmos/examples/data" + "/" + SourceDatabaseName + "/";
+        String folder = s + "/src/main/java/com/azure/cosmos/examples/data" + "/" + sourceDatabaseName + "/";
         folder = folder.replace("\\", "/");
-        System.out.println("folder: " + folder);
-        System.out.println("Preparing to load containers and data for " + TargetDatabaseName + "....");
+        logger.info("folder: " + folder);
+        logger.info("Preparing to load containers and data for " + targetDatabaseName + "....");
         File path = new java.io.File(folder);
         File[] listOfFiles = path.listFiles();
         final ExecutorService es = Executors.newCachedThreadPool();
@@ -216,11 +219,11 @@ public class Deployment {
         assert listOfFiles != null;
         for (File file : listOfFiles) {
             final Runnable task = () -> {
-                System.out.println("new container thread...");
+                logger.info("new container thread...");
                 if (file.isFile()) {
                     String pk = "";
-                    System.out.println("loading data for container: " + file.getName()+" in database "+TargetDatabaseName);
-                    System.out.println("schemaVersion: "+schemaVersion);
+                    logger.info("loading data for container: " + file.getName()+" in database "+targetDatabaseName);
+                    logger.info("schemaVersion: "+schemaVersion);
                     List<SchemaDetails> schemaDetails = DatabaseSchema.get(schemaVersion -1);
                     for (SchemaDetails schema : schemaDetails) {
                         if (file.getName().equals(schema.getContainerName())) {
@@ -228,7 +231,7 @@ public class Deployment {
                             try {
                                 Thread.sleep(0);
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                logger.info("Exception: " + e);
                             }
                         }
                     }
@@ -250,14 +253,9 @@ public class Deployment {
                         bulkCreateGeneric(docsToInsert, productCategoryContainer, pk);
                         sc.close();
                     } catch (InterruptedException | IOException e) {
-                        e.printStackTrace();
+                        logger.info("Exception: " + e);
                     }
-                    System.out.println("finished loading data for container: " + file.getName());
-                    try {
-                        Thread.sleep(0);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    logger.info("finished loading data for container: " + file.getName());
                 }
             };
             es.execute(task);
@@ -267,10 +265,10 @@ public class Deployment {
         try {
             final boolean finished = es.awaitTermination(10, TimeUnit.MINUTES);
             if (finished) {
-                System.out.println("finished loading all data for database: " + TargetDatabaseName);
+                logger.info("finished loading all data for database: " + targetDatabaseName);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.info("Exception: " + e);
         }
     }
 

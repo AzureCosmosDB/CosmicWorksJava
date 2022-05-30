@@ -95,79 +95,79 @@ public class ModelingDemos implements AutoCloseable {
                 if (input.equals("a")) {
                     clearScreen();
                     System.out.println("Calling query for single customer");
-                    p.QueryCustomer();
+                    p.queryCustomer();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("b")) {
                     clearScreen();
                     System.out.println("Point read for single customer");
-                    p.GetCustomer();
+                    p.getCustomer();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("c")) {
                     clearScreen();
                     System.out.println("List all product categories");
-                    p.ListAllProductCategories();
+                    p.listAllProductCategories();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("d")) {
                     clearScreen();
                     System.out.println("Query products by category id");
-                    p.QueryProductsByCategoryId();
+                    p.queryProductsByCategoryId();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("e")) {
                     clearScreen();
                     System.out.println("Update product category name");
-                    p.QueryProductsForCategory();
-                    p.UpdateProductCategory();
+                    p.queryProductsForCategory();
+                    p.updateProductCategory();
                     p.pressAnyKeyToContinue("Category updated.\nPress any key to continue...");
-                    p.QueryProductsForCategory();
+                    p.queryProductsForCategory();
                     p.pressAnyKeyToContinue("Press any key to revert categories...");
-                    p.RevertProductCategory();
+                    p.revertProductCategory();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("f")) {
                     clearScreen();
                     System.out.println("Query orders by customer id");
-                    p.QuerySalesOrdersByCustomerId();
+                    p.querySalesOrdersByCustomerId();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("g")) {
                     clearScreen();
                     System.out.println("Query for customer and all orders");
-                    p.QueryCustomerAndSalesOrdersByCustomerId();
+                    p.queryCustomerAndSalesOrdersByCustomerId();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("h")) {
                     clearScreen();
                     System.out.println("Create new order and update order total");
-                    p.CreateNewOrderAndUpdateCustomerOrderTotal();
+                    p.createNewOrderAndUpdateCustomerOrderTotal();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("i")) {
                     clearScreen();
                     System.out.println("Delete order and update order total");
-                    p.DeleteOrder();
+                    p.deleteOrder();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("j")) {
                     clearScreen();
                     System.out.println("Query top 10 customers");
-                    p.GetTop10Customers();
+                    p.getTop10Customers();
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("k")) {
                     clearScreen();
                     System.out.println("Create databases and containers");
-                    new Deployment().CreateDatabase(p.client, 1);
+                    new Deployment().createDatabase(p.client, 1);
                     p.pressAnyKeyToContinue("Press any key to continue...");
                 }
                 if (input.equals("l")) {
                     clearScreen();
                     System.out.println("Upload data to containers");
                     final long startTime = System.currentTimeMillis();
-                    new Deployment().LoadDatabase();
+                    new Deployment().loadDatabase();
                     final long endTime = System.currentTimeMillis();
                     final long durationMillis = (endTime - startTime);
                     String duration = millisecondsToTime(durationMillis);
@@ -179,7 +179,7 @@ public class ModelingDemos implements AutoCloseable {
                 if (input.equals("m")) {
                     clearScreen();
                     System.out.println("Delete databases and containers");
-                    new Deployment().DeleteDatabases(p.client, 1);
+                    new Deployment().deleteDatabases(p.client, 1);
 
                 }
                 if (input.equals("x")) {
@@ -210,7 +210,7 @@ public class ModelingDemos implements AutoCloseable {
     }
     // </Main>
 
-    public void QueryCustomer() {
+    public void queryCustomer() {
         database = client.getDatabase("database-v2");
         container = database.getContainer("customer");
         int preferredPageSize = 10;
@@ -220,45 +220,35 @@ public class ModelingDemos implements AutoCloseable {
         String customerId = "FFD0DD37-1F0E-4E2E-8FAC-EAF45B0E9447";
         CosmosPagedFlux<Product> customerPagedFluxResponse = container.queryItems(
                 "SELECT * FROM c WHERE c.id = \"" + customerId + "\"", queryOptions, Product.class);
+        customerPagedFluxResponse.byPage(preferredPageSize).flatMap(fluxResponse -> {
+            logger.info("Got a page of query result with " +
+                    fluxResponse.getResults().size() + " items(s)"
+                    + " and request charge of " + fluxResponse.getRequestCharge());
+            logger.info("Item Ids " + fluxResponse
+                    .getResults()
+                    .stream()
+                    .map(Product::getId)
+                    .collect(Collectors.toList()));
+            return Flux.empty();
+        }).onErrorResume((exception) -> {
+            logger.error(String.format("Read Item failed with %s\n", exception));
+            return Mono.empty();
 
-        try {
-            customerPagedFluxResponse.byPage(preferredPageSize).flatMap(fluxResponse -> {
-                logger.info("Got a page of query result with " +
-                        fluxResponse.getResults().size() + " items(s)"
-                        + " and request charge of " + fluxResponse.getRequestCharge());
-                logger.info("Item Ids " + fluxResponse
-                        .getResults()
-                        .stream()
-                        .map(Product::getId)
-                        .collect(Collectors.toList()));
-                return Flux.empty();
-            }).blockLast();
-
-        } catch (Exception err) {
-            if (err instanceof CosmosException) {
-                // Client-specific errors
-                CosmosException cosmosErr = (CosmosException) err;
-                cosmosErr.printStackTrace();
-                logger.error(String.format("Read Item failed with %s\n", cosmosErr));
-            } else {
-                // General errors
-                err.printStackTrace();
-            }
-        }
+        }).blockLast();
     }
 
-    public void GetCustomer() {
+    public void getCustomer() {
         try {
             database = client.getDatabase("database-v2");
             container = database.getContainer("customer");
             String customerId = "FFD0DD37-1F0E-4E2E-8FAC-EAF45B0E9447";
-            Mono<CosmosItemResponse<CustomerV2>> item = container.readItem(customerId, new PartitionKey(customerId),
-                    CustomerV2.class);
-            double requestCharge = item.block().getRequestCharge();
-            Duration requestLatency = item.block().getDuration();
+            CosmosItemResponse<CustomerV2> item = container.readItem(customerId, new PartitionKey(customerId),
+                    CustomerV2.class).block();
+            double requestCharge = item.getRequestCharge();
+            Duration requestLatency = item.getDuration();
             logger.info(String.format(
                     "Point Read for a single customer\n. Item successfully read with id %s with a charge of %.2f and within duration %s",
-                    item.block().getItem().getId(), requestCharge, requestLatency));
+                    item.getItem().getId(), requestCharge, requestLatency));
         } catch (CosmosException e) {
             e.printStackTrace();
             logger.info(String.format("Read Item failed with %s", e));
@@ -266,7 +256,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    public void ListAllProductCategories() {
+    public void listAllProductCategories() {
         database = client.getDatabase("database-v2");
         container = database.getContainer("productCategory");
         int preferredPageSize = 100;
@@ -276,7 +266,7 @@ public class ModelingDemos implements AutoCloseable {
         CosmosPagedFlux<ProductCategory> productTypesPagedFlux = container.queryItems(
                 "SELECT * FROM c WHERE c.type = 'category'", queryOptions, ProductCategory.class);
 
-                productTypesPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
+        productTypesPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
             logger.info("Got a page of query result with " +
                     cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                     + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
@@ -286,11 +276,11 @@ public class ModelingDemos implements AutoCloseable {
                     .stream()
                     .map(ProductCategory::getName)
                     .collect(Collectors.toList()));
-                    return Flux.empty();
+            return Flux.empty();
         }).blockLast();
     }
 
-    public void QueryProductsByCategoryId() {
+    public void queryProductsByCategoryId() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("product");
         int preferredPageSize = 100;
@@ -302,7 +292,7 @@ public class ModelingDemos implements AutoCloseable {
         CosmosPagedFlux<JsonNode> productByCategoryPagedFlux = container.queryItems(
                 "SELECT * FROM c WHERE c.categoryId = '" + categoryId + "'", queryOptions, JsonNode.class);
 
-                productByCategoryPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
+        productByCategoryPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
             logger.info("Got a page of query result with " +
                     cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                     + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
@@ -321,7 +311,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    public void QueryProductsForCategory() {
+    public void queryProductsForCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("product");
         int preferredPageSize = 100;
@@ -334,7 +324,7 @@ public class ModelingDemos implements AutoCloseable {
         CosmosPagedFlux<JsonNode> productByCategoryPagedFlux = container.queryItems(
                 sql, queryOptions, JsonNode.class);
 
-                productByCategoryPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
+        productByCategoryPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
             logger.info("Got a page of query result with " +
                     cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                     + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
@@ -352,7 +342,7 @@ public class ModelingDemos implements AutoCloseable {
 
     }
 
-    private void UpdateProductCategory() {
+    private void updateProductCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("productCategory");
 
@@ -364,8 +354,8 @@ public class ModelingDemos implements AutoCloseable {
         updatedProductCategory.setType("category");
         updatedProductCategory.setName("Accessories, Tires & Tubes");
 
-        
-        Mono<CosmosItemResponse<ProductCategory>> productCategoryResponse = container.replaceItem(updatedProductCategory,
+        Mono<CosmosItemResponse<ProductCategory>> productCategoryResponse = container.replaceItem(
+                updatedProductCategory,
                 updatedProductCategory.getId(), new PartitionKey(updatedProductCategory.getType()),
                 new CosmosItemRequestOptions());
 
@@ -374,7 +364,7 @@ public class ModelingDemos implements AutoCloseable {
         logger.info("Done.");
     }
 
-    private void RevertProductCategory() {
+    private void revertProductCategory() {
         database = client.getDatabase("database-v3");
         container = database.getContainer("productCategory");
 
@@ -386,7 +376,8 @@ public class ModelingDemos implements AutoCloseable {
         updatedProductCategory.setType("category");
         updatedProductCategory.setName("Accessories, Tires and Tubes");
 
-        Mono<CosmosItemResponse<ProductCategory>> productCategoryResponse = container.replaceItem(updatedProductCategory,
+        Mono<CosmosItemResponse<ProductCategory>> productCategoryResponse = container.replaceItem(
+                updatedProductCategory,
                 updatedProductCategory.getId(), new PartitionKey(updatedProductCategory.getType()),
                 new CosmosItemRequestOptions());
 
@@ -395,7 +386,7 @@ public class ModelingDemos implements AutoCloseable {
         logger.info("Done.");
     }
 
-    private void QuerySalesOrdersByCustomerId() {
+    private void querySalesOrdersByCustomerId() {
         int preferredPageSize = 100;
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         queryOptions.setQueryMetricsEnabled(true);
@@ -409,7 +400,7 @@ public class ModelingDemos implements AutoCloseable {
         CosmosPagedFlux<SalesOrder> customerSalesOrderPagedFlux = container.queryItems(
                 sql, queryOptions, SalesOrder.class);
 
-                customerSalesOrderPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
+        customerSalesOrderPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
             logger.info("Got a page of query result with " +
                     cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                     + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
@@ -428,7 +419,7 @@ public class ModelingDemos implements AutoCloseable {
         }).blockLast();
     }
 
-    private void QueryCustomerAndSalesOrdersByCustomerId() {
+    private void queryCustomerAndSalesOrdersByCustomerId() {
         int preferredPageSize = 100;
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         queryOptions.setQueryMetricsEnabled(true);
@@ -441,7 +432,7 @@ public class ModelingDemos implements AutoCloseable {
 
         CosmosPagedFlux<JsonNode> customerSalesOrderPagedFlux = container.queryItems(
                 sql, queryOptions, JsonNode.class);
-                customerSalesOrderPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
+        customerSalesOrderPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
             logger.info("Got a page of query result with " +
                     cosmosItemPropertiesFeedResponse.getResults().size() + " items(s)"
                     + " and request charge of " + cosmosItemPropertiesFeedResponse.getRequestCharge());
@@ -474,13 +465,13 @@ public class ModelingDemos implements AutoCloseable {
         }).blockLast();
     }
 
-    private void CreateNewOrderAndUpdateCustomerOrderTotal() {
+    private void createNewOrderAndUpdateCustomerOrderTotal() {
         database = client.getDatabase("database-v4");
         container = database.getContainer("customer");
 
         // Get the customer
         String customerId = "FFD0DD37-1F0E-4E2E-8FAC-EAF45B0E9447";
-        
+
         Mono<CosmosItemResponse<CustomerV4>> item = container.readItem(customerId, new PartitionKey(customerId),
                 CustomerV4.class);
         CustomerV4 customer = item.block().getItem();
@@ -549,7 +540,7 @@ public class ModelingDemos implements AutoCloseable {
         }
     }
 
-    private void DeleteOrder() {
+    private void deleteOrder() {
         database = client.getDatabase("database-v4");
         container = database.getContainer("customer");
 
@@ -578,7 +569,7 @@ public class ModelingDemos implements AutoCloseable {
         }
     }
 
-    private void GetTop10Customers() {
+    private void getTop10Customers() {
         int preferredPageSize = 100;
         CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
         queryOptions.setQueryMetricsEnabled(true);
@@ -590,9 +581,9 @@ public class ModelingDemos implements AutoCloseable {
                 "FROM c WHERE c.type = 'customer' " +
                 "ORDER BY c.salesOrderCount DESC";
 
-                CosmosPagedFlux<JsonNode> customerPagedFlux = container.queryItems(
+        CosmosPagedFlux<JsonNode> customerPagedFlux = container.queryItems(
                 sql, queryOptions, JsonNode.class);
-                customerPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
+        customerPagedFlux.byPage(preferredPageSize).flatMap(cosmosItemPropertiesFeedResponse -> {
             System.out.println("Print out top 10 customers and number of orders\n");
             for (JsonNode record : cosmosItemPropertiesFeedResponse.getResults()) {
                 try {
@@ -623,7 +614,7 @@ public class ModelingDemos implements AutoCloseable {
     private void pressAnyKeyToContinue(String message) {
         System.out.println(message);
         try {
-            //noinspection ResultOfMethodCallIgnored
+            // noinspection ResultOfMethodCallIgnored
             System.in.read();
         } catch (Exception e) {
             e.printStackTrace();
