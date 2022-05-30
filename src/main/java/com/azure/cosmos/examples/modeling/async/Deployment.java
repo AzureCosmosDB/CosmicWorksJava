@@ -228,11 +228,6 @@ public class Deployment {
                     for (SchemaDetails schema : schemaDetails) {
                         if (file.getName().equals(schema.getContainerName())) {
                             pk = schema.getPk().substring(1);
-                            try {
-                                Thread.sleep(0);
-                            } catch (InterruptedException e) {
-                                logger.info("Exception: " + e);
-                            }
                         }
                     }
                     Scanner sc;
@@ -246,13 +241,12 @@ public class Deployment {
                             ObjectMapper mapper = new ObjectMapper();
                             JsonNode actualObj = mapper.readTree(doc.toString());
                             docList.add(actualObj);
-                            Thread.sleep(0);
                         }
                         Flux<JsonNode> docsToInsert = Flux.fromIterable(docList);
                         CosmosAsyncContainer productCategoryContainer = database.getContainer(file.getName());
                         bulkCreateGeneric(docsToInsert, productCategoryContainer, pk);
                         sc.close();
-                    } catch (InterruptedException | IOException e) {
+                    } catch (IOException e) {
                         logger.info("Exception: " + e);
                     }
                     logger.info("finished loading data for container: " + file.getName());
