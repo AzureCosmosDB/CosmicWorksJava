@@ -27,7 +27,7 @@ ACCOUNT_HOST=your account uri;ACCOUNT_KEY=your account primary key
 1. To run a sample, specify its Main Class 
 
 ```
-com.azure.cosmos.examples.modeling.sync.ModelingDemo
+com.azure.cosmos.examples.modeling.async.ModelingDemos
 ```
 
 1. On the main menu, press 'k' to create the database and container resources (Note, these are billable resources).
